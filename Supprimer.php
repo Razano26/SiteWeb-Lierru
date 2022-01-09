@@ -273,7 +273,6 @@
                 break;
             }
 
-#            echo "<td><a href=\"delete.php?id=".$row['id_arbre']."\">Delete</a></td>"; 
 
         ?>
 
