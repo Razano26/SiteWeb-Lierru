@@ -1,0 +1,201 @@
+CREATE TABLE Periode(
+   periode VARCHAR(50),
+   PRIMARY KEY(periode)
+);
+
+CREATE TABLE Domaine(
+   id_domaine INT,
+   nom_domaine VARCHAR(50),
+   PRIMARY KEY(id_domaine)
+);
+
+CREATE TABLE Coordonnee(
+   id_position VARCHAR(50),
+   latitude DECIMAL(15,10),
+   longitude DECIMAL(15,10),
+   PRIMARY KEY(id_position)
+);
+
+CREATE TABLE Annee(
+   annee_comptage VARCHAR(50),
+   PRIMARY KEY(annee_comptage)
+);
+
+CREATE TABLE Date_releve(
+   date_rel DATE,
+   PRIMARY KEY(date_rel)
+);
+
+CREATE TABLE heure_releve(
+   heure_rel TIME,
+   PRIMARY KEY(heure_rel)
+);
+
+CREATE TABLE Carree(
+   designation VARCHAR(50),
+   orientation VARCHAR(50),
+   PRIMARY KEY(designation)
+);
+
+CREATE TABLE Tranche_age(
+   tranche_age VARCHAR(50),
+   description VARCHAR(50),
+   PRIMARY KEY(tranche_age)
+);
+
+CREATE TABLE age(
+   age INT,
+   description VARCHAR(50),
+   PRIMARY KEY(age)
+);
+
+CREATE TABLE sexe(
+   sexe_prelevement VARCHAR(50),
+   PRIMARY KEY(sexe_prelevement)
+);
+
+CREATE TABLE Donnees_externes(
+   id_meteo INT AUTO_INCREMENT,
+   vent INT NOT NULL,
+   temp DECIMAL(15,2),
+   PRIMARY KEY(id_meteo)
+);
+
+CREATE TABLE Date_donnees_externes(
+   id_meteo INT,
+   annee_mois DATE,
+   PRIMARY KEY(annee_mois)
+);
+
+CREATE TABLE Lieu(
+   id_lieu INT,
+   nom_lieu VARCHAR(50),
+   PRIMARY KEY(id_lieu)
+);
+
+CREATE TABLE Groupement_forestier(
+   id_groupement VARCHAR(2),
+   nom_groupement VARCHAR(50),
+   id_domaine INT NOT NULL,
+   PRIMARY KEY(id_groupement),
+   FOREIGN KEY(id_domaine) REFERENCES Domaine(id_domaine)
+);
+
+CREATE TABLE Thermometre(
+   id_thermometre VARCHAR(6),
+   nom_thermometre VARCHAR(50),
+   id_position VARCHAR(50) NOT NULL,
+   id_groupement VARCHAR(2) NOT NULL,
+   PRIMARY KEY(id_thermometre),
+   FOREIGN KEY(id_position) REFERENCES Coordonnee(id_position),
+   FOREIGN KEY(id_groupement) REFERENCES Groupement_forestier(id_groupement)
+);
+
+CREATE TABLE Arbre(
+   id_arbre VARCHAR(4),
+   essence VARCHAR(50),
+   type INT,
+   id_position VARCHAR(50) NOT NULL,
+   id_groupement VARCHAR(2) NOT NULL,
+   PRIMARY KEY(id_arbre),
+   UNIQUE(id_position),
+   FOREIGN KEY(id_position) REFERENCES Coordonnee(id_position),
+   FOREIGN KEY(id_groupement) REFERENCES Groupement_forestier(id_groupement)
+);
+
+CREATE TABLE Recolter(
+   id_arbre VARCHAR(4),
+   date_rel DATE,
+   nbr_glands_total INT,
+   poids_recolte INT,
+   PRIMARY KEY(id_arbre, date_rel),
+   FOREIGN KEY(id_arbre) REFERENCES Arbre(id_arbre),
+   FOREIGN KEY(date_rel) REFERENCES Date_releve(date_rel)
+);
+
+CREATE TABLE Mesurer(
+   id_thermometre VARCHAR(6),
+   heure_rel TIME,
+   date_rel DATE,
+   temperature DECIMAL(15,2),
+   rh DECIMAL(15,2),
+   wb DECIMAL(15,2),
+   dp DECIMAL(15,2),
+   PRIMARY KEY(id_thermometre, heure_rel, date_rel),
+   FOREIGN KEY(id_thermometre) REFERENCES Thermometre(id_thermometre),
+   FOREIGN KEY(heure_rel) REFERENCES heure_releve(heure_rel),
+   FOREIGN KEY(date_rel) REFERENCES Date_releve(date_rel)
+);
+
+CREATE TABLE prelever(
+   periode VARCHAR(50),
+   id_domaine INT,
+   prelevement_sanglier INT,
+   PRIMARY KEY(periode, id_domaine),
+   FOREIGN KEY(periode) REFERENCES Periode(periode),
+   FOREIGN KEY(id_domaine) REFERENCES Domaine(id_domaine)
+);
+
+CREATE TABLE compter(
+   annee_comptage VARCHAR(50),
+   id_domaine INT,
+   comptage_sanglier INT,
+   PRIMARY KEY(annee_comptage, id_domaine),
+   FOREIGN KEY(annee_comptage) REFERENCES Annee(annee_comptage),
+   FOREIGN KEY(id_domaine) REFERENCES Domaine(id_domaine)
+);
+
+CREATE TABLE relever_sol(
+   id_arbre VARCHAR(4),
+   date_rel DATE,
+   designation VARCHAR(50),
+   nbr_glands INT,
+   PRIMARY KEY(id_arbre, date_rel, designation),
+   FOREIGN KEY(id_arbre) REFERENCES Arbre(id_arbre),
+   FOREIGN KEY(date_rel) REFERENCES Date_releve(date_rel),
+   FOREIGN KEY(designation) REFERENCES Carree(designation)
+);
+
+CREATE TABLE relever_houppier(
+   id_arbre VARCHAR(4),
+   date_rel DATE,
+   indice_fructification INT,
+   fruit_sol BOOLEAN,
+   PRIMARY KEY(id_arbre, date_rel),
+   FOREIGN KEY(id_arbre) REFERENCES Arbre(id_arbre),
+   FOREIGN KEY(date_rel) REFERENCES Date_releve(date_rel)
+);
+
+CREATE TABLE compter_details(
+   id_domaine INT,
+   annee_comptage VARCHAR(50),
+   tranche_age VARCHAR(50),
+   comptage_det INT,
+   PRIMARY KEY(id_domaine, annee_comptage, tranche_age),
+   FOREIGN KEY(id_domaine) REFERENCES Domaine(id_domaine),
+   FOREIGN KEY(annee_comptage) REFERENCES Annee(annee_comptage),
+   FOREIGN KEY(tranche_age) REFERENCES Tranche_age(tranche_age)
+);
+
+CREATE TABLE prelever_details(
+   periode VARCHAR(50),
+   id_domaine INT,
+   age INT,
+   sexe_prelevement VARCHAR(50),
+   prelevement_det VARCHAR(50),
+   PRIMARY KEY(periode, id_domaine, age, sexe_prelevement),
+   FOREIGN KEY(periode) REFERENCES Periode(periode),
+   FOREIGN KEY(id_domaine) REFERENCES Domaine(id_domaine),
+   FOREIGN KEY(age) REFERENCES age(age),
+   FOREIGN KEY(sexe_prelevement) REFERENCES sexe(sexe_prelevement)
+);
+
+CREATE TABLE relever_meteo(
+   id_meteo INT  AUTO_INCREMENT,
+   annee_mois DATE,
+   id_lieu INT,
+   PRIMARY KEY(id_meteo, annee_mois, id_lieu),
+   FOREIGN KEY(id_meteo) REFERENCES Donnees_externes(id_meteo),
+   FOREIGN KEY(annee_mois) REFERENCES Date_donnees_externes(annee_mois),
+   FOREIGN KEY(id_lieu) REFERENCES Lieu(id_lieu)
+);
