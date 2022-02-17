@@ -54,6 +54,8 @@
                     }
                 echo("<br/>");
                 echo("<h3>\r\nExécution de l'ensemble des requêtes SQL terminée</h3>");
+
+                echo(test);
             ?>
     </body>
 </html>
